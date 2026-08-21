@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pokémon Royale</title>
+  <style>
+    @font-face {
+      font-family: 'Lilita One';
+      src: url('LilitaOne.ttf') format('truetype');
+      font-weight: normal; font-style: normal;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lilita One', cursive, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: #121214; color: #ffffff; padding: 12px; max-width: 600px; margin: 0 auto; }
+    nav { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #2a2a30; padding-bottom: 12px; }
+    .nav-btn { flex: 1; background: #22222a; color: #888; border: 2px solid #333; padding: 12px 0; font-size: 1.1rem; border-radius: 10px; cursor: pointer; text-align: center; }
+    .nav-btn.active { color: #fff; border-color: #ffcb05; background: #2a2a38; box-shadow: 0 0 10px rgba(255, 203, 5, 0.2); }
+    .sub-nav { display: flex; gap: 8px; margin-bottom: 15px; }
+    .sub-btn { flex: 1; background: #1e1e24; color: #aaa; border: 1px solid #333; padding: 8px 0; font-size: 0.9rem; border-radius: 8px; cursor: pointer; }
+    .sub-btn.active { background: #ffcb05; color: #000; border-color: #ffcb05; }
+    .game-sub-nav { display: flex; gap: 10px; margin-bottom: 15px; }
+    .game-btn { flex: 1; background: #2a2a35; color: #ccc; border: 1px solid #444; padding: 6px 0; font-size: 0.85rem; border-radius: 6px; cursor: pointer; }
+    .game-btn.active { background: #3b4cca; color: #fff; border-color: #3b4cca; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .controls-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+    .action-btn { flex: 1; background: #3b4cca; color: #fff; border: none; padding: 12px 10px; font-size: 0.95rem; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 0 #2a3795; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .action-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #2a3795; }
+    .secondary-btn { background: #2a2a35; box-shadow: 0 4px 0 #1a1a22; color: #ccc; }
+    .danger-btn { background: #dc3545; box-shadow: 0 4px 0 #a71d2a; }
+    .play-btn { background: #28a745; box-shadow: 0 4px 0 #1e7e34; font-size: 1.2rem; padding: 14px; }
+    
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+    .modal.open { display: flex; }
+    .modal-content { background: #1e1e24; border: 2px solid #333; border-radius: 16px; padding: 20px; width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 85vh; }
+    .modal-content h2 { color: #ffcb05; font-size: 1.4rem; text-align: center; }
+    input, select { background: #2a2a35; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; width: 100%; }
+    .image-preview { width: 100%; max-height: 180px; object-fit: contain; border-radius: 8px; background: #121214; display: none; margin-top: 5px; border: 1px dashed #555; }
+    .paste-btn { background: #28a745; box-shadow: 0 3px 0 #1e7e34; font-size: 0.85rem; padding: 8px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
+    .cancel-btn { background: #444; box-shadow: 0 4px 0 #222; }
+    
+    .clan-section { background: #1a1a20; border-radius: 12px; padding: 12px; margin-bottom: 16px; border-left: 6px solid #555; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .clan-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .clan-info { display: flex; align-items: center; gap: 10px; }
+    .clan-logo { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; background: rgba(255,255,255,0.05); }
+    .clan-title { font-size: 1.3rem; }
+    .icon-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 6px; opacity: 0.8; }
+    .pokemon-grid { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+    .pokemon-card { background: #24242c; border: 1px solid #333; border-radius: 10px; padding: 8px; min-width: 130px; max-width: 130px; display: flex; flex-direction: column; align-items: center; position: relative; scroll-snap-align: start; flex-shrink: 0; }
+    .pokemon-name { font-size: 0.85rem; margin-bottom: 6px; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; }
+    .pokemon-img { width: 100%; aspect-ratio: 2.5 / 3.5; object-fit: contain; border-radius: 6px; margin-bottom: 6px; cursor: pointer; background: #121214; }
+    .pokemon-footer { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 2px; }
+    .pokemon-hp { font-size: 0.85rem; color: #ffcb05; }
+    .card-actions { display: flex; gap: 2px; }
+    .card-actions .icon-btn { font-size: 0.85rem; padding: 2px; }
+    
+    .selection-list { overflow-y: auto; max-height: 50vh; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
+    .select-item { display: flex; align-items: center; justify-content: space-between; background: #2a2a35; padding: 8px 12px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; user-select: none; }
+    .select-item.selected { border-color: #28a745; background: #1e3a24; }
+    .select-item.disabled { opacity: 0.35; filter: grayscale(100%); cursor: not-allowed; }
+    .select-item-info { display: flex; align-items: center; gap: 10px; }
+    .select-item-img { width: 35px; aspect-ratio: 2.5 / 3.5; object-fit: contain; border-radius: 4px; background: #121214; }
+    
+    .selected-pokemons-view { background: #1a1a20; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }
+    .selected-title { font-size: 1.1rem; color: #ffcb05; margin-bottom: 12px; text-align: center; }
+    
+    .round-header { display: flex; justify-content: space-between; align-items: center; background: #1a1a20; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; color: #ffcb05; font-size: 1.2rem; }
+    .match-card { background: #1a1a20; border: 1px solid #333; border-radius: 12px; padding: 8px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
+    .team-super-slot { background: #24242c; border: 1px solid #3d3d4a; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .team-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 4px; }
+    .team-title { font-size: 0.85rem; color: #ffcb05; }
+    
+    .team-grid-duo { display: flex; flex-direction: column; gap: 6px; }
+    .team-grid-squad { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    
+    .slot-card { background: #1a1a20; border-radius: 6px; padding: 4px; display: flex; flex-direction: column; gap: 4px; width: 100%; border: 1px solid #333; }
+    .slot-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    .slot-name { font-size: 0.75rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65px; }
+    .hp-edit { display: flex; align-items: center; gap: 2px; font-size: 0.7rem; color: #ffcb05; }
+    .hp-input { width: 35px; padding: 1px; font-size: 0.75rem; text-align: center; background: #121214; border: 1px solid #444; color: #ffcb05; border-radius: 4px; }
+    .slot-img-container { width: 100%; aspect-ratio: 2.5 / 3.5; border-radius: 4px; overflow: hidden; background: #121214; display: flex; align-items: center; justify-content: center; }
+    .slot-img { width: 100%; height: 100%; object-fit: contain; cursor: pointer; }
+    
+    .match-middle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+    .vs-text { font-size: 1.1rem; color: #888; font-weight: bold; }
+    .coin-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; cursor: pointer; font-weight: bold; box-shadow: 0 0 8px rgba(0,0,0,0.5); user-select: none; }
+    .coin-btn.heads { background: #ffffff; color: #000000; border-color: #cccccc; }
+    .coin-btn.tails { background: #000000; color: #ffffff; border-color: #444444; }
+    
+    .elim-btn { background: #333; color: #aaa; border: none; padding: 6px 2px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; width: 100%; text-align: center; font-weight: bold; }
+    .elim-btn.eliminated { background: #dc3545; color: #fff; }
+    .swap-select { font-size: 0.7rem; padding: 4px 2px; background: #121214; border-radius: 4px; border: 1px solid #444; color: #ccc; width: 100%; }
+    
+    .profile-card { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .profile-title { font-size: 1.6rem; color: #ffcb05; }
+    .profile-clan-badge { font-size: 0.9rem; padding: 4px 12px; border-radius: 20px; background: #2a2a35; color: #aaa; }
+    .profile-hp-badge { font-size: 1.2rem; color: #28a745; }
+    .profile-img { width: 100%; max-height: 65vh; object-fit: contain; border-radius: 10px; box-shadow: 0 0 15px rgba(255,203,5,0.3); }
+    .empty-msg { color: #666; font-size: 1rem; text-align: center; margin-top: 30px; }
+    .data-sync-bar { display: flex; gap: 10px; margin-top: 20px; border-top: 1px solid #2a2a30; padding-top: 15px; }
+    
+    .team-builder-list { display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; margin-bottom: 15px; }
+    .team-box { background: #24242c; border: 1px solid #444; border-radius: 8px; padding: 8px; }
+    .team-box-title { color: #ffcb05; font-size: 0.85rem; margin-bottom: 6px; }
+    .team-box-slots { display: flex; gap: 6px; flex-wrap: wrap; }
+    .team-slot-select { flex: 1; min-width: 110px; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <button class="nav-btn active" onclick="switchTab('modes', event)">GAME MODES</button>
+    <button class="nav-btn" onclick="switchTab('players', event)">PLAYERS</button>
+  </nav>
+
+  <div id="tab-modes" class="tab-content active">
+    <div class="sub-nav">
+      <button class="sub-btn active" onclick="switchSubMode('solo', event)">SOLO</button>
+      <button class="sub-btn" onclick="switchSubMode('duo', event)">DUO</button>
+      <button class="sub-btn" onclick="switchSubMode('squad', event)">SQUAD</button>
+    </div>
+
+    <div id="mode-solo" class="mode-content">
+      <div class="game-sub-nav">
+        <button id="btn-solo-a" class="game-btn active" onclick="switchGameSlot('solo', 'A')">GAME A</button>
+        <button id="btn-solo-b" class="game-btn" onclick="switchGameSlot('solo', 'B')">GAME B</button>
+      </div>
+      <div class="controls-bar">
+        <button class="action-btn" onclick="openSelectionModal('solo')">📋 Select Pokémon</button>
+      </div>
+      <div id="solo-arena"></div>
+      <div class="controls-bar" id="round-nav-bar-solo" style="margin-top: 15px; display:none;">
+        <button class="action-btn secondary-btn" id="prev-round-btn-solo" onclick="navigateRound('solo', -1)">Previous Round</button>
+        <button class="action-btn" id="next-round-btn-solo" onclick="navigateRound('solo', 1)">Next Round</button>
+      </div>
+      <div class="controls-bar" style="margin-top: 10px;">
+        <button class="action-btn secondary-btn" onclick="handleNewGame('solo')">New Game</button>
+        <button class="action-btn danger-btn" onclick="handleReset('solo')">Reset All</button>
+      </div>
+    </div>
+
+    <div id="mode-duo" class="mode-content" style="display: none;">
+      <div class="game-sub-nav">
+        <button id="btn-duo-a" class="game-btn active" onclick="switchGameSlot('duo', 'A')">GAME A</button>
+        <button id="btn-duo-b" class="game-btn" onclick="switchGameSlot('duo', 'B')">GAME B</button>
+      </div>
+      <div class="controls-bar">
+        <button class="action-btn" onclick="openSelectionModal('duo')">📋 Select Pokémon</button>
+      </div>
+      <div id="duo-arena"></div>
+      <div class="controls-bar" id="round-nav-bar-duo" style="margin-top: 15px; display:none;">
+        <button class="action-btn secondary-btn" id="prev-round-btn-duo" onclick="navigateRound('duo', -1)">Previous Round</button>
+        <button class="action-btn" id="next-round-btn-duo" onclick="navigateRound('duo', 1)">Next Round</button>
+      </div>
+      <div class="controls-bar" style="margin-top: 10px;">
+        <button class="action-btn secondary-btn" onclick="handleNewGame('duo')">New Game</button>
+        <button class="action-btn danger-btn" onclick="handleReset('duo')">Reset All</button>
+      </div>
+    </div>
+
+    <div id="mode-squad" class="mode-content" style="display: none;">
+      <div class="game-sub-nav">
+        <button id="btn-squad-a" class="game-btn active" onclick="switchGameSlot('squad', 'A')">GAME A</button>
+        <button id="btn-squad-b" class="game-btn" onclick="switchGameSlot('squad', 'B')">GAME B</button>
+      </div>
+      <div class="controls-bar">
+        <button class="action-btn" onclick="openSelectionModal('squad')">📋 Select Pokémon</button>
+      </div>
+      <div id="squad-arena"></div>
+      <div class="controls-bar" id="round-nav-bar-squad" style="margin-top: 15px; display:none;">
+        <button class="action-btn secondary-btn" id="prev-round-btn-squad" onclick="navigateRound('squad', -1)">Previous Round</button>
+        <button class="action-btn" id="next-round-btn-squad" onclick="navigateRound('squad', 1)">Next Round</button>
+      </div>
+      <div class="controls-bar" style="margin-top: 10px;">
+        <button class="action-btn secondary-btn" onclick="handleNewGame('squad')">New Game</button>
+        <button class="action-btn danger-btn" onclick="handleReset('squad')">Reset All</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-players" class="tab-content">
+    <div class="controls-bar">
+      <button class="action-btn" onclick="openClanModal()">+ CLAN</button>
+      <button class="action-btn" onclick="openPlayerModal()">+ PLAYER</button>
+    </div>
+    <div id="roster-container"></div>
+    <div class="data-sync-bar">
+      <button class="action-btn secondary-btn" onclick="exportData()">📥 Export Data</button>
+      <button class="action-btn secondary-btn" onclick="document.getElementById('import-file').click()">📤 Import Data</button>
+      <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+    </div>
+  </div>
+
+  <!-- MODALS -->
+  <div id="selection-modal" class="modal">
+    <div class="modal-content">
+      <h2>Select Pokémon (<span id="select-count">0</span>/50)</h2>
+      <div class="selection-list" id="selection-list"></div>
+      <div class="modal-actions">
+        <button class="action-btn cancel-btn" onclick="closeModal('selection-modal')">Cancel</button>
+        <button class="action-btn" onclick="confirmSelection()">Confirm Selection</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="clan-modal" class="modal">
+    <div class="modal-content">
+      <h2 id="clan-modal-title">Create Clan</h2>
+      <input type="hidden" id="clan-edit-id">
+      <input type="text" id="clan-name" placeholder="Clan Name">
+      <label style="font-size: 0.8rem; color: #aaa;">Clan Color:</label>
+      <input type="color" id="clan-color" value="#ff0000" style="height: 40px; cursor: pointer;">
+      <label style="font-size: 0.8rem; color: #aaa;">Clan Logo:</label>
+      <input type="file" id="clan-logo" accept="image/*" onchange="handleFileSelect(event, 'clan-logo-preview')">
+      <button class="action-btn paste-btn" onclick="pasteFromClipboard('clan-logo-preview')">📋 Paste Logo</button>
+      <img id="clan-logo-preview" class="image-preview">
+      <div class="modal-actions">
+        <button class="action-btn cancel-btn" onclick="closeModal('clan-modal')">Cancel</button>
+        <button class="action-btn" onclick="saveClan()">Save Clan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="player-modal" class="modal">
+    <div class="modal-content">
+      <h2 id="player-modal-title">Add Player</h2>
+      <input type="hidden" id="player-edit-id">
+      <input type="text" id="player-name" placeholder="Pokémon Name">
+      <input type="number" id="player-hp" placeholder="Default HP (e.g. 100)">
+      <select id="player-clan"><option value="">No Clan</option></select>
+      <label style="font-size: 0.8rem; color: #aaa;">Pokémon Card Image:</label>
+      <input type="file" id="player-img" accept="image/*" onchange="handleFileSelect(event, 'player-img-preview')">
+      <button class="action-btn paste-btn" onclick="pasteFromClipboard('player-img-preview')">📋 Paste Card</button>
+      <img id="player-img-preview" class="image-preview">
+      <div class="modal-actions">
+        <button class="action-btn cancel-btn" onclick="closeModal('player-modal')">Cancel</button>
+        <button class="action-btn" onclick="savePlayer()">Save Player</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="profile-modal" class="modal" onclick="closeModal('profile-modal')">
+    <div class="modal-content profile-card" onclick="event.stopPropagation()">
+      <div id="profile-title" class="profile-title"></div>
+      <div id="profile-clan" class="profile-clan-badge"></div>
+      <div id="profile-hp" class="profile-hp-badge"></div>
+      <img id="profile-img" class="profile-img" src="">
+      <button class="action-btn cancel-btn" style="width: 100%; margin-top: 10px;" onclick="closeModal('profile-modal')">Close</button>
+    </div>
+  </div>
+
+  <script>
+    let clans = JSON.parse(localStorage.getItem('pkmn_clans')) || [];
+    let players = JSON.parse(localStorage.getItem('pkmn_players')) || [];
+
+    function createEmptySlotState() {
+      return {
+        A: { selectedIds: [], teams: [], rounds: [], currentRound: 0 },
+        B: { selectedIds: [], teams: [], rounds: [], currentRound: 0 }
+      };
+    }
+
+    let gameState = JSON.parse(localStorage.getItem('pkmn_game_v4')) || {
+      solo: createEmptySlotState(),
+      duo: createEmptySlotState(),
+      squad: createEmptySlotState()
+    };
+
+    let currentMode = 'solo';
+    let currentSlot = 'A';
+    let tempSelectedIds = [];
+
+    function saveGameState() {
+      localStorage.setItem('pkmn_game_v4', JSON.stringify(gameState));
+    }
+
+    function switchTab(tabId, event) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      if (event && event.target) event.target.classList.add('active');
+    }
+
+    function switchSubMode(mode, event) {
+      currentMode = mode;
+      document.querySelectorAll('.mode-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.sub-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(`mode-${mode}`).style.display = 'block';
+      if (event && event.target) event.target.classList.add('active');
+      renderArena();
+    }
+
+    function switchGameSlot(mode, slot) {
+      currentSlot = slot;
+      document.querySelectorAll(`#mode-${mode} .game-btn`).forEach(el => el.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-${mode}-${slot.toLowerCase()}`);
+      if (activeBtn) activeBtn.classList.add('active');
+      renderArena();
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    function handleFileSelect(event, previewId) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const preview = document.getElementById(previewId);
+          preview.src = e.target.result; preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function pasteFromClipboard(previewId) {
+      try {
+        const clipboardItems = await navigator.clipboard.read();
+        for (const item of clipboardItems) {
+          for (const type of item.types) {
+            if (type.startsWith('image/')) {
+              const blob = await item.getType(type);
+              const reader = new FileReader();
+              reader.onload = e => {
+                const preview = document.getElementById(previewId);
+                preview.src = e.target.result; preview.style.display = 'block';
+              };
+              reader.readAsDataURL(blob);
+              return;
+            }
+          }
+        }
+        alert('No image in clipboard!');
+      } catch (err) { alert('Clipboard access denied.'); }
+    }
+
+    function openSelectionModal(mode) {
+      currentMode = mode;
+      const otherSlot = currentSlot === 'A' ? 'B' : 'A';
+      const otherSelected = gameState[currentMode][otherSlot].selectedIds || [];
+      tempSelectedIds = [...(gameState[currentMode][currentSlot].selectedIds || [])];
+      renderSelectionList(otherSelected);
+      document.getElementById('selection-modal').classList.add('open');
+    }
+
+    function renderSelectionList(otherSelected) {
+      const listContainer = document.getElementById('selection-list');
+      listContainer.innerHTML = '';
+      if (players.length === 0) {
+        listContainer.innerHTML = '<div class="empty-msg">No Pokémon created. Add players first!</div>';
+        document.getElementById('select-count').innerText = 0;
+        return;
+      }
+      const grouped = {};
+      clans.forEach(c => grouped[c.id] = { name: c.name, players: [] });
+      grouped['no_clan'] = { name: 'No Clan', players: [] };
+
+      players.forEach(p => {
+        const key = p.clanId && grouped[p.clanId] ? p.clanId : 'no_clan';
+        grouped[key].players.push(p);
+      });
+
+      Object.keys(grouped).forEach(key => {
+        const group = grouped[key];
+        if (group.players.length === 0) return;
+        const groupHeader = document.createElement('div');
+        groupHeader.style.color = '#ffcb05'; groupHeader.style.fontSize = '0.9rem'; groupHeader.style.marginTop = '5px';
+        groupHeader.innerText = group.name;
+        listContainer.appendChild(groupHeader);
+
+        group.players.forEach(p => {
+          const isOther = otherSelected.includes(p.id);
+          const isSelected = tempSelectedIds.includes(p.id);
+          const item = document.createElement('div');
+          item.className = `select-item ${isSelected ? 'selected' : ''} ${isOther ? 'disabled' : ''}`;
+          item.innerHTML = `
+            <div class="select-item-info">
+              <img src="${p.img || 'https://via.placeholder.com/35x49'}" class="select-item-img">
+              <div>${p.name} <span style="color:#ffcb05; font-size:0.8rem;">(${p.hp} HP)</span></div>
+            </div>
+            <div style="font-size: 1.2rem; font-weight: bold; color: #28a745;">${isSelected ? '✓' : ''}</div>
+          `;
+          if (!isOther) item.onclick = () => toggleSelectPlayer(p.id, otherSelected);
+          listContainer.appendChild(item);
+        });
+      });
+      document.getElementById('select-count').innerText = tempSelectedIds.length;
+    }
+
+    function toggleSelectPlayer(id, otherSelected) {
+      if (tempSelectedIds.includes(id)) {
+        tempSelectedIds = tempSelectedIds.filter(i => i !== id);
+      } else {
+        if (tempSelectedIds.length >= 50) return alert('Maximum 50 Pokémon!');
+        tempSelectedIds.push(id);
+      }
+      renderSelectionList(otherSelected);
+    }
+
+    function confirmSelection() {
+      const state = gameState[currentMode][currentSlot];
+      state.selectedIds = [...tempSelectedIds];
+      state.teams = [];
+      state.rounds = [];
+      state.currentRound = 0;
+      
+      const teamSize = currentMode === 'duo' ? 2 : currentMode === 'squad' ? 4 : 1;
+      if (teamSize > 1) {
+        let pool = [...state.selectedIds];
+        let teamIdx = 1;
+        while (pool.length >= teamSize) {
+          const members = pool.splice(0, teamSize);
+          state.teams.push({
+            id: 'team_' + Date.now() + '_' + Math.random(),
+            name: `${currentMode.toUpperCase()} ${teamIdx++}`,
+            members: members
+          });
+        }
+      }
+
+      saveGameState();
+      closeModal('selection-modal');
+      renderArena();
+    }
+
+    function updateTeamMember(teamIdx, memberIdx, newPlayerId) {
+      const state = gameState[currentMode][currentSlot];
+      if (state.teams[teamIdx]) {
+        state.teams[teamIdx].members[memberIdx] = newPlayerId;
+        saveGameState();
+      }
+    }
+
+    function startGameMatches() {
+      const state = gameState[currentMode][currentSlot];
+      
+      let teamsToPlay = [];
+      if (currentMode === 'solo') {
+        teamsToPlay = state.selectedIds.map((pid, idx) => ({
+          id: 'team_solo_' + pid,
+          name: `P_${idx+1}`,
+          eliminated: false,
+          pokemons: [{ id: pid, hp: (players.find(p=>p.id===pid)||{}).hp||100, defaultHp: (players.find(p=>p.id===pid)||{}).hp||100 }]
+        }));
+      } else {
+        teamsToPlay = state.teams.map(t => ({
+          id: t.id,
+          name: t.name,
+          eliminated: false,
+          pokemons: t.members.map(pid => {
+            const p = players.find(x => x.id === pid) || {};
+            return { id: pid, hp: p.hp || 100, defaultHp: p.hp || 100 };
+          })
+        }));
+      }
+
+      teamsToPlay.sort(() => Math.random() - 0.5);
+
+      let matches = [];
+      while (teamsToPlay.length > 1) {
+        matches.push({ t1: teamsToPlay.shift(), t2: teamsToPlay.shift(), coin: 'HEADS' });
+      }
+      if (teamsToPlay.length === 1) {
+        matches.push({ t1: teamsToPlay[0], t2: null, coin: 'HEADS' });
+      }
+
+      state.rounds = [matches];
+      state.currentRound = 0;
+      saveGameState();
+      renderArena();
+    }
+
+    function navigateRound(mode, direction) {
+      const state = gameState[mode][currentSlot];
+      if (direction === 1) {
+        const currentMatches = state.rounds[state.currentRound];
+        let winningTeams = [];
+        
+        currentMatches.forEach(m => {
+          [m.t1, m.t2].forEach(team => {
+            if (team && !team.eliminated) {
+              winningTeams.push({
+                id: team.id,
+                name: team.name,
+                eliminated: false,
+                pokemons: team.pokemons.map(pk => ({
+                  id: pk.id,
+                  hp: Math.min(pk.hp + 30, pk.defaultHp),
+                  defaultHp: pk.defaultHp
+                }))
+              });
+            }
+          });
+        });
+
+        if (winningTeams.length <= 1) {
+          alert(winningTeams[0] ? `Winner of Game ${currentSlot}: ${winningTeams[0].name}!` : 'No Teams advanced!');
+          return;
+        }
+
+        winningTeams.sort(() => Math.random() - 0.5);
+        let nextMatches = [];
+        while (winningTeams.length > 1) {
+          nextMatches.push({ t1: winningTeams.shift(), t2: winningTeams.shift(), coin: 'HEADS' });
+        }
+        if (winningTeams.length === 1) {
+          nextMatches.push({ t1: winningTeams[0], t2: null, coin: 'HEADS' });
+        }
+
+        state.rounds = state.rounds.slice(0, state.currentRound + 1);
+        state.rounds.push(nextMatches);
+        state.currentRound++;
+      } else if (direction === -1) {
+        if (state.currentRound > 0) state.currentRound--;
+      }
+      saveGameState();
+      renderArena();
+    }
+
+    function flipCoin(matchIdx, btnEl) {
+      const match = gameState[currentMode][currentSlot].rounds[gameState[currentMode][currentSlot].currentRound][matchIdx];
+      const result = Math.random() < 0.5 ? 'HEADS' : 'TAILS';
+      match.coin = result;
+      saveGameState();
+      btnEl.innerText = result;
+      btnEl.className = `coin-btn ${result.toLowerCase()}`;
+    }
+
+    function toggleTeamEliminated(matchIdx, teamKey, btnEl) {
+      const match = gameState[currentMode][currentSlot].rounds[gameState[currentMode][currentSlot].currentRound][matchIdx];
+      if (match && match[teamKey]) {
+        match[teamKey].eliminated = !match[teamKey].eliminated;
+        saveGameState();
+        if (match[teamKey].eliminated) {
+          btnEl.classList.add('eliminated'); btnEl.innerText = 'ELIMINATED';
+        } else {
+          btnEl.classList.remove('eliminated'); btnEl.innerText = 'Eliminate';
+        }
+      }
+    }
+
+    function updatePokemonHp(matchIdx, teamKey, pkIdx, val) {
+      const match = gameState[currentMode][currentSlot].rounds[gameState[currentMode][currentSlot].currentRound][matchIdx];
+      if (match && match[teamKey] && match[teamKey].pokemons[pkIdx]) {
+        match[teamKey].pokemons[pkIdx].hp = parseInt(val) || 0;
+        saveGameState();
+      }
+    }
+
+    function swapTeam(matchIdx, teamKey, targetTeamId) {
+      if (!targetTeamId) return;
+      const currentMatches = gameState[currentMode][currentSlot].rounds[gameState[currentMode][currentSlot].currentRound];
+      const currentTeam = currentMatches[matchIdx][teamKey];
+      
+      for (let m of currentMatches) {
+        if (m.t1 && m.t1.id === targetTeamId) {
+          const temp = m.t1;
+          m.t1 = currentTeam;
+          currentMatches[matchIdx][teamKey] = temp;
+          break;
+        } else if (m.t2 && m.t2.id === targetTeamId) {
+          const temp = m.t2;
+          m.t2 = currentTeam;
+          currentMatches[matchIdx][teamKey] = temp;
+          break;
+        }
+      }
+      saveGameState();
+      renderArena();
+    }
+
+    function swapIndividualPokemon(matchIdx, teamKey, pkIdx, targetPlayerId) {
+      if (!targetPlayerId) return;
+      const currentMatches = gameState[currentMode][currentSlot].rounds[gameState[currentMode][currentSlot].currentRound];
+      const currentPk = currentMatches[matchIdx][teamKey].pokemons[pkIdx];
+
+      for (let m of currentMatches) {
+        ['t1', 't2'].forEach(tk => {
+          if (m[tk] && m[tk].pokemons) {
+            m[tk].pokemons.forEach(pk => {
+              if (pk.id === targetPlayerId) {
+                const tempId = pk.id; const tempHp = pk.hp; const tempDef = pk.defaultHp;
+                pk.id = currentPk.id; pk.hp = currentPk.hp; pk.defaultHp = currentPk.defaultHp;
+                currentPk.id = tempId; currentPk.hp = tempHp; currentPk.defaultHp = tempDef;
+              }
+            });
+          }
+        });
+      }
+      saveGameState();
+      renderArena();
+    }
+
+    function handleNewGame(mode) {
+      if (confirm(`Start new game in ${mode.toUpperCase()} ${currentSlot}?`)) {
+        gameState[mode][currentSlot].rounds = [];
+        gameState[mode][currentSlot].currentRound = 0;
+        saveGameState();
+        renderArena();
+      }
+    }
+
+    function handleReset(mode) {
+      if (confirm(`Reset all in ${mode.toUpperCase()} ${currentSlot}?`)) {
+        gameState[mode][currentSlot] = { selectedIds: [], teams: [], rounds: [], currentRound: 0 };
+        saveGameState();
+        renderArena();
+      }
+    }
+
+    function renderArena() {
+      const container = document.getElementById(`${currentMode}-arena`);
+      const navBar = document.getElementById(`round-nav-bar-${currentMode}`);
+      container.innerHTML = '';
+
+      const state = gameState[currentMode][currentSlot];
+      const selectedIds = state.selectedIds || [];
+
+      if (selectedIds.length === 0) {
+        container.innerHTML = '<div class="empty-msg">No active game. Click "📋 Select Pokémon" to start!</div>';
+        if (navBar) navBar.style.display = 'none';
+        return;
+      }
+
+      if (!state.rounds || state.rounds.length === 0) {
+        if (navBar) navBar.style.display = 'none';
+        
+        if (currentMode === 'solo') {
+          const selectedList = players.filter(p => selectedIds.includes(p.id));
+          const view = document.createElement('div');
+          view.className = 'selected-pokemons-view';
+          let cardsHtml = selectedList.map(p => `
+            <div class="selected-card" style="background:#24242c; border:1px solid #333; border-radius:8px; padding:6px; display:flex; flex-direction:column; align-items:center;">
+              <img src="${p.img || 'https://via.placeholder.com/80x110'}" style="width:100%; aspect-ratio:2.5/3.5; object-fit:contain; border-radius:4px; background:#121214;">
+              <div style="font-size:0.75rem; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">${p.name}</div>
+              <div style="font-size:0.75rem; color:#ffcb05;">${p.hp} HP</div>
+            </div>
+          `).join('');
+
+          view.innerHTML = `
+            <div class="selected-title">Selected Pokémon (${selectedList.length})</div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap:10px; margin-bottom:15px; max-height:350px; overflow-y:auto;">${cardsHtml}</div>
+            <button class="action-btn play-btn" style="width:100%;" onclick="startGameMatches()">▶ PLAY</button>
+          `;
+          container.appendChild(view);
+        } else {
+          const view = document.createElement('div');
+          view.className = 'selected-pokemons-view';
+          
+          let teamsHtml = state.teams.map((t, tIdx) => {
+            let slotOptions = t.members.map((mId, mIdx) => {
+              let opts = selectedIds.map(pId => {
+                let pObj = players.find(x => x.id === pId);
+                return `<option value="${pId}" ${pId === mId ? 'selected' : ''}>${pObj ? pObj.name : 'Empty'}</option>`;
+              }).join('');
+              return `<select class="team-slot-select" onchange="updateTeamMember(${tIdx}, ${mIdx}, this.value)">${opts}</select>`;
+            }).join('');
+
+            return `
+              <div class="team-box">
+                <div class="team-box-title">${t.name}</div>
+                <div class="team-box-slots">${slotOptions}</div>
+              </div>
+            `;
+          }).join('');
+
+          view.innerHTML = `
+            <div class="selected-title">Configure Teams (${state.teams.length})</div>
+            <div class="team-builder-list">${teamsHtml}</div>
+            <button class="action-btn play-btn" style="width:100%;" onclick="startGameMatches()">▶ PLAY</button>
+          `;
+          container.appendChild(view);
+        }
+        return;
+      }
+
+      if (navBar) {
+        navBar.style.display = 'flex';
+        document.getElementById(`prev-round-btn-${currentMode}`).style.display = state.currentRound > 0 ? 'flex' : 'none';
+      }
+
+      const header = document.createElement('div');
+      header.className = 'round-header';
+      header.innerText = `ROUND ${state.currentRound + 1}`;
+      container.appendChild(header);
+
+      const currentMatches = state.rounds[state.currentRound];
+      const allRoundTeams = [];
+      const allRoundPlayers = [];
+
+      currentMatches.forEach(m => {
+        ['t1', 't2'].forEach(tk => {
+          if (m[tk]) {
+            allRoundTeams.push({ id: m[tk].id, name: m[tk].name });
+            m[tk].pokemons.forEach(pk => allRoundPlayers.push(pk.id));
+          }
+        });
+      });
+
+      currentMatches.forEach((m, idx) => {
+        const card = document.createElement('div');
+        card.className = 'match-card';
+        card.innerHTML = `
+          ${renderTeamSuperSlotHtml(m.t1, idx, 't1', allRoundTeams, allRoundPlayers)}
+          <div class="match-middle">
+            <div class="vs-text">VS</div>
+            <div class="coin-btn ${m.coin.toLowerCase()}" onclick="flipCoin(${idx}, this)">${m.coin}</div>
+          </div>
+          ${renderTeamSuperSlotHtml(m.t2, idx, 't2', allRoundTeams, allRoundPlayers)}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderTeamSuperSlotHtml(teamData, matchIdx, teamKey, allRoundTeams, allRoundPlayerIds) {
+      if (!teamData) {
+        return `<div class="team-super-slot"><div class="team-header"><span class="team-title" style="color:#666;">BYE</span></div><div style="color:#555; text-align:center; padding:15px;">No Opponent</div></div>`;
+      }
+
+      const teamSwapOpts = allRoundTeams
+        .filter(t => t.id !== teamData.id)
+        .map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+      let gridClass = currentMode === 'squad' ? 'team-grid-squad' : 'team-grid-duo';
+
+      let pokemonsHtml = teamData.pokemons.map((pk, pkIdx) => {
+        const pObj = players.find(x => x.id === pk.id);
+        if (!pObj) return `<div class="slot-card">Invalid</div>`;
+
+        const pkSwapOpts = allRoundPlayerIds
+          .filter(id => id !== pk.id)
+          .map(id => {
+            const item = players.find(x => x.id === id);
+            return `<option value="${id}">${item ? item.name : 'Unknown'}</option>`;
+          }).join('');
+
+        return `
+          <div class="slot-card">
+            <div class="slot-header">
+              <span class="slot-name">${pObj.name}</span>
+              <div class="hp-edit"><input type="number" class="hp-input" value="${pk.hp}" onchange="updatePokemonHp(${matchIdx}, '${teamKey}', ${pkIdx}, this.value)"> HP</div>
+            </div>
+            <div class="slot-img-container"><img src="${pObj.img || 'https://via.placeholder.com/150x210'}" class="slot-img" onclick="openProfile('${pObj.id}')"></div>
+            <select class="swap-select" onchange="swapIndividualPokemon(${matchIdx}, '${teamKey}', ${pkIdx}, this.value)">
+              <option value="">Swap Pkmn...</option>
+              ${pkSwapOpts}
+            </select>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="team-super-slot">
+          <div class="team-header">
+            <span class="team-title">${teamData.name}</span>
+          </div>
+          <div class="${gridClass}">${pokemonsHtml}</div>
+          <button class="elim-btn ${teamData.eliminated ? 'eliminated' : ''}" onclick="toggleTeamEliminated(${matchIdx}, '${teamKey}', this)">${teamData.eliminated ? 'ELIMINATED' : 'Eliminate'}</button>
+          <select class="swap-select" onchange="swapTeam(${matchIdx}, '${teamKey}', this.value)">
+            <option value="">Swap Team...</option>
+            ${teamSwapOpts}
+          </select>
+        </div>
+      `;
+    }
+
+    function openClanModal(clanId = null) {
+      const modal = document.getElementById('clan-modal');
+      const preview = document.getElementById('clan-logo-preview');
+      if (clanId) {
+        const clan = clans.find(c => c.id === clanId);
+        document.getElementById('clan-modal-title').innerText = 'Edit Clan';
+        document.getElementById('clan-edit-id').value = clan.id;
+        document.getElementById('clan-name').value = clan.name;
+        document.getElementById('clan-color').value = clan.color;
+        if (clan.logo) { preview.src = clan.logo; preview.style.display = 'block'; } else preview.style.display = 'none';
+      } else {
+        document.getElementById('clan-modal-title').innerText = 'Create Clan';
+        document.getElementById('clan-edit-id').value = '';
+        document.getElementById('clan-name').value = '';
+        document.getElementById('clan-color').value = '#ff0000';
+        preview.style.display = 'none';
+      }
+      document.getElementById('clan-logo').value = '';
+      modal.classList.add('open');
+    }
+
+    async function saveClan() {
+      const editId = document.getElementById('clan-edit-id').value;
+      const name = document.getElementById('clan-name').value.trim();
+      const color = document.getElementById('clan-color').value;
+      const preview = document.getElementById('clan-logo-preview');
+      if (!name) return alert('Enter clan name!');
+      let logo = preview.style.display !== 'none' ? preview.src : '';
+
+      if (editId) {
+        const clan = clans.find(c => c.id === editId);
+        clan.name = name; clan.color = color; clan.logo = logo;
+      } else {
+        clans.push({ id: 'clan_' + Date.now(), name, color, logo });
+      }
+      localStorage.setItem('pkmn_clans', JSON.stringify(clans));
+      closeModal('clan-modal');
+      renderRoster();
+    }
+
+    function deleteClan(clanId) {
+      if (confirm('Delete clan? Players move to No Clan.')) {
+        clans = clans.filter(c => c.id !== clanId);
+        players.forEach(p => { if (p.clanId === clanId) p.clanId = ''; });
+        localStorage.setItem('pkmn_clans', JSON.stringify(clans));
+        localStorage.setItem('pkmn_players', JSON.stringify(players));
+        renderRoster();
+      }
+    }
+
+    function openPlayerModal(playerId = null) {
+      const select = document.getElementById('player-clan');
+      select.innerHTML = '<option value="">No Clan</option>';
+      clans.forEach(clan => select.innerHTML += `<option value="${clan.id}">${clan.name}</option>`);
+
+      const modal = document.getElementById('player-modal');
+      const preview = document.getElementById('player-img-preview');
+
+      if (playerId) {
+        const p = players.find(item => item.id === playerId);
+        document.getElementById('player-modal-title').innerText = 'Edit Player';
+        document.getElementById('player-edit-id').value = p.id;
+        document.getElementById('player-name').value = p.name;
+        document.getElementById('player-hp').value = p.hp;
+        select.value = p.clanId || '';
+        if (p.img) { preview.src = p.img; preview.style.display = 'block'; } else preview.style.display = 'none';
+      } else {
+        document.getElementById('player-modal-title').innerText = 'Add Player';
+        document.getElementById('player-edit-id').value = '';
+        document.getElementById('player-name').value = '';
+        document.getElementById('player-hp').value = '';
+        select.value = '';
+        preview.style.display = 'none';
+      }
+      document.getElementById('player-img').value = '';
+      modal.classList.add('open');
+    }
+
+    async function savePlayer() {
+      const editId = document.getElementById('player-edit-id').value;
+      const name = document.getElementById('player-name').value.trim();
+      const hp = document.getElementById('player-hp').value;
+      const clanId = document.getElementById('player-clan').value;
+      const preview = document.getElementById('player-img-preview');
+      if (!name || !hp) return alert('Fill in name and HP!');
+      let img = preview.style.display !== 'none' ? preview.src : '';
+
+      if (editId) {
+        const p = players.find(item => item.id === editId);
+        p.name = name; p.hp = parseInt(hp); p.clanId = clanId; p.img = img;
+      } else {
+        players.push({ id: 'p_' + Date.now(), name, hp: parseInt(hp), clanId, img });
+      }
+      localStorage.setItem('pkmn_players', JSON.stringify(players));
+      closeModal('player-modal');
+      renderRoster();
+    }
+
+    function deletePlayer(playerId) {
+      if (confirm('Delete Pokémon?')) {
+        players = players.filter(p => p.id !== playerId);
+        localStorage.setItem('pkmn_players', JSON.stringify(players));
+        renderRoster();
+      }
+    }
+
+    function openProfile(playerId) {
+      const p = players.find(item => item.id === playerId);
+      if (!p) return;
+      const clan = clans.find(c => c.id === p.clanId);
+      document.getElementById('profile-title').innerText = p.name;
+      document.getElementById('profile-clan').innerText = clan ? clan.name : 'No Clan';
+      document.getElementById('profile-clan').style.color = clan ? clan.color : '#aaa';
+      document.getElementById('profile-hp').innerText = `HP: ${p.hp}`;
+      document.getElementById('profile-img').src = p.img || 'https://via.placeholder.com/300x420?text=No+Card';
+      document.getElementById('profile-modal').classList.add('open');
+    }
+
+    function exportData() {
+      const data = { clans, players, gameState };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'pokemon_royale_backup.json';
+      a.click();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.clans && data.players) {
+            clans = data.clans; players = data.players;
+            if (data.gameState) gameState = data.gameState;
+            localStorage.setItem('pkmn_clans', JSON.stringify(clans));
+            localStorage.setItem('pkmn_players', JSON.stringify(players));
+            saveGameState();
+            renderRoster();
+            renderArena();
+            alert('Import success!');
+          }
+        } catch (err) { alert('Invalid file!'); }
+      };
+      reader.readAsText(file);
+    }
+
+    function renderRoster() {
+      const container = document.getElementById('roster-container');
+      container.innerHTML = '';
+      if (clans.length === 0 && players.length === 0) {
+        container.innerHTML = '<div class="empty-msg">No clans or players created yet.</div>';
+        return;
+      }
+      clans.forEach(clan => {
+        const clanPlayers = players.filter(p => p.clanId === clan.id);
+        renderClanSection(container, clan.name, clan.color, clan.logo, clanPlayers, clan.id);
+      });
+      const noClanPlayers = players.filter(p => !p.clanId);
+      if (noClanPlayers.length > 0 || clans.length > 0) {
+        renderClanSection(container, 'No Clan', '#777777', '', noClanPlayers, null);
+      }
+    }
+
+    function renderClanSection(container, name, color, logo, clanPlayers, clanId) {
+      const clanEl = document.createElement('div');
+      clanEl.className = 'clan-section';
+      clanEl.style.borderLeftColor = color;
+      let logoHtml = logo ? `<img src="${logo}" class="clan-logo">` : '';
+      let playersHtml = clanPlayers.map(p => `
+        <div class="pokemon-card">
+          <div class="pokemon-name">${p.name}</div>
+          <img src="${p.img || 'https://via.placeholder.com/130x182'}" class="pokemon-img" onclick="openProfile('${p.id}')">
+          <div class="pokemon-footer">
+            <span class="pokemon-hp">${p.hp} HP</span>
+            <div class="card-actions">
+              <button class="icon-btn" onclick="openPlayerModal('${p.id}')">✏️</button>
+              <button class="icon-btn" onclick="deletePlayer('${p.id}')">🗑️</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      let actionsHtml = clanId ? `
+        <div>
+          <button class="icon-btn" onclick="openClanModal('${clanId}')">✏️</button>
+          <button class="icon-btn" onclick="deleteClan('${clanId}')">🗑️</button>
+        </div>
+      ` : '';
+
+      clanEl.innerHTML = `
+        <div class="clan-header">
+          <div class="clan-info">${logoHtml}<div class="clan-title" style="color: ${color}">${name}</div></div>
+          ${actionsHtml}
+        </div>
+        <div class="pokemon-grid">${playersHtml || '<span style="color:#666; font-size:0.85rem; padding: 10px 0;">No Pokémon</span>'}</div>
+      `;
+      container.appendChild(clanEl);
+    }
+
+    renderRoster();
+    renderArena();
+  </script>
+</body>
+</html>
