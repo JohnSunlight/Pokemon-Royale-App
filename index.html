@@ -285,7 +285,8 @@
       saveToLocalStorage('pkmn_game_v4', gameState);
     }
 
-    function compressImage(base64Str, maxWidth = 300, maxHeight = 420, quality = 0.7) {
+    // Agresivnější komprese pro ušetření místa pro 100+ položek
+    function compressImage(base64Str, maxWidth = 180, maxHeight = 252, quality = 0.55) {
       return new Promise((resolve) => {
         const img = new Image();
         img.src = base64Str;
@@ -894,6 +895,10 @@
       const preview = document.getElementById('player-img-preview');
       if (!name || !hp) return alert('Fill in name and HP!');
       let img = preview.style.display !== 'none' ? preview.src : '';
+
+      // Promázání historie her, aby uvolnilo místo v paměti pro velké množství hráčů
+      gameState = { solo: createEmptySlotState(), duo: createEmptySlotState(), squad: createEmptySlotState() };
+      saveGameState();
 
       if (editId) {
         const p = players.find(item => item.id === editId);
