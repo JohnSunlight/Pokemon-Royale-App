@@ -32,13 +32,20 @@
     
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
     .modal.open { display: flex; }
-    .modal-content { background: #1e1e24; border: 2px solid #333; border-radius: 16px; padding: 20px; width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 85vh; }
+    .modal-content { background: #1e1e24; border: 2px solid #333; border-radius: 16px; padding: 20px; width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 85vh; overflow-y: auto; }
     .modal-content h2 { color: #ffcb05; font-size: 1.4rem; text-align: center; }
     input, select { background: #2a2a35; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; width: 100%; }
     .image-preview { width: 100%; max-height: 180px; object-fit: contain; border-radius: 8px; background: #121214; display: none; margin-top: 5px; border: 1px dashed #555; }
     .paste-btn { background: #28a745; box-shadow: 0 3px 0 #1e7e34; font-size: 0.85rem; padding: 8px; }
     .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
     .cancel-btn { background: #444; box-shadow: 0 4px 0 #222; }
+    
+    /* Random Select Box Styl */
+    .random-select-box { background: #18181c; border: 1px solid #3d3d4a; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .random-select-title { font-size: 0.85rem; color: #ffcb05; text-align: center; }
+    .random-select-controls { display: flex; gap: 8px; }
+    .random-select-btn { background: #e0a800; color: #000; border: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: bold; flex: 1; text-align: center; }
+    .random-select-btn:active { background: #c69500; }
     
     .clan-section { background: #1a1a20; border-radius: 12px; padding: 12px; margin-bottom: 16px; border-left: 6px solid #555; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     .clan-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -55,7 +62,7 @@
     .card-actions { display: flex; gap: 2px; }
     .card-actions .icon-btn { font-size: 0.85rem; padding: 2px; }
     
-    .selection-list { overflow-y: auto; max-height: 50vh; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
+    .selection-list { overflow-y: auto; max-height: 40vh; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
     .select-item { display: flex; align-items: center; justify-content: space-between; background: #2a2a35; padding: 8px 12px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; user-select: none; }
     .select-item.selected { border-color: #28a745; background: #1e3a24; }
     .select-item.disabled { opacity: 0.35; filter: grayscale(100%); cursor: not-allowed; }
@@ -74,19 +81,33 @@
     .team-grid-duo { display: flex; flex-direction: column; gap: 6px; }
     .team-grid-squad { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     
-    .slot-card { background: #1a1a20; border-radius: 6px; padding: 4px; display: flex; flex-direction: column; gap: 4px; width: 100%; border: 1px solid #333; }
+    .slot-card { background: #1a1a20; border-radius: 6px; padding: 4px; display: flex; flex-direction: column; gap: 4px; width: 100%; border: 1px solid #333; position: relative; }
+    .slot-card.fainted { opacity: 0.4; filter: grayscale(100%); }
     .slot-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
     .slot-name { font-size: 0.75rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65px; }
     .hp-edit { display: flex; align-items: center; gap: 2px; font-size: 0.7rem; color: #ffcb05; }
     .hp-input { width: 35px; padding: 1px; font-size: 0.75rem; text-align: center; background: #121214; border: 1px solid #444; color: #ffcb05; border-radius: 4px; }
-    .slot-img-container { width: 100%; aspect-ratio: 2.5 / 3.5; border-radius: 4px; overflow: hidden; background: #121214; display: flex; align-items: center; justify-content: center; }
+    .slot-img-container { width: 100%; aspect-ratio: 2.5 / 3.5; border-radius: 4px; overflow: hidden; background: #121214; display: flex; align-items: center; justify-content: center; position: relative; }
     .slot-img { width: 100%; height: 100%; object-fit: contain; cursor: pointer; }
     
-    .match-middle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+    .status-badges { position: absolute; top: 4px; right: 4px; display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+    .status-badge { font-size: 0.6rem; padding: 2px 4px; border-radius: 4px; font-weight: bold; border: 1px solid; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+    .badge-burned { background: rgba(220, 53, 69, 0.9); color: #fff; border-color: #ff4d4d; }
+    .badge-paralyzed { background: rgba(255, 193, 7, 0.9); color: #000; border-color: #ffe066; }
+    .badge-poisoned { background: rgba(111, 66, 193, 0.9); color: #fff; border-color: #b185ff; }
+    .badge-asleep { background: rgba(23, 162, 184, 0.9); color: #fff; border-color: #6edff6; }
+    .badge-confused { background: rgba(253, 126, 20, 0.9); color: #fff; border-color: #ffaa66; }
+    
+    .match-middle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0 4px; }
     .vs-text { font-size: 1.1rem; color: #888; font-weight: bold; }
     .coin-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; cursor: pointer; font-weight: bold; box-shadow: 0 0 8px rgba(0,0,0,0.5); user-select: none; }
     .coin-btn.heads { background: #ffffff; color: #000000; border-color: #cccccc; }
     .coin-btn.tails { background: #000000; color: #ffffff; border-color: #444444; }
+    
+    .sim-btn { background: #e0a800; color: #000; border: none; padding: 5px 2px; font-size: 0.7rem; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; text-align: center; }
+    .sim-btn:active { background: #c69500; }
+    .sim-round-btn { background: #17a2b8; color: #fff; border: none; padding: 8px 4px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; width: 100%; text-align: center; font-weight: bold; box-shadow: 0 2px 0 #117a8b; }
+    .sim-round-btn:active { background: #138496; transform: translateY(1px); }
     
     .elim-btn { background: #333; color: #aaa; border: none; padding: 6px 2px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; width: 100%; text-align: center; font-weight: bold; }
     .elim-btn.eliminated { background: #dc3545; color: #fff; }
@@ -105,6 +126,11 @@
     .team-box-title { color: #ffcb05; font-size: 0.85rem; margin-bottom: 6px; }
     .team-box-slots { display: flex; gap: 6px; flex-wrap: wrap; }
     .team-slot-select { flex: 1; min-width: 110px; }
+    
+    .add-atk-btn { background: #2a2a35; border: 1px dashed #666; color: #ffcb05; padding: 8px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; text-align: center; }
+    .atk-group { background: #18181c; border: 1px solid #333; border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .atk-group-title { font-size: 0.8rem; color: #ffcb05; }
+    .ability-row { display: flex; gap: 6px; align-items: center; }
   </style>
 </head>
 <body>
@@ -196,6 +222,16 @@
   <div id="selection-modal" class="modal">
     <div class="modal-content">
       <h2>Select Pokémon (<span id="select-count">0</span>/100)</h2>
+      
+      <!-- DYNAMIC RANDOM SELECTION BOX -->
+      <div class="random-select-box">
+        <div id="random-select-title" class="random-select-title">Random Select</div>
+        <div class="random-select-controls">
+          <input type="number" id="random-count-input" min="1" placeholder="Počet" style="padding:6px; font-size:0.9rem;">
+          <button class="random-select-btn" onclick="performRandomSelection()">🎲 Select Random</button>
+        </div>
+      </div>
+
       <div class="selection-list" id="selection-list"></div>
       <div class="modal-actions">
         <button class="action-btn cancel-btn" onclick="closeModal('selection-modal')">Cancel</button>
@@ -228,6 +264,71 @@
       <input type="hidden" id="player-edit-id">
       <input type="text" id="player-name" placeholder="Pokémon Name">
       <input type="number" id="player-hp" placeholder="Default HP (e.g. 100)">
+      
+      <!-- ATTACK 1 GROUP -->
+      <div class="atk-group">
+        <div class="atk-group-title">Attack 1</div>
+        <input type="text" id="player-atk1" placeholder="Attack 1 (Damage / Effect e.g. 60+)">
+        <select id="player-atk1-ability">
+          <option value="none">No Ability</option>
+          <option value="heads_bonus">If heads, this attack does XX more damage.</option>
+          <option value="tails_chain">This attack does XX more damage for each tails in a row.</option>
+          <option value="heal_self">Heal XX damage from this pokémon.</option>
+          <option value="flip_3_heads">Flip 3 coins, this attack does default damage times heads.</option>
+          <option value="self_damage">This Pokémon also does XX damage to itself.</option>
+          <option value="cant_use_next_turn">Can't use this attack next turn.</option>
+          <option value="burn_heads">If heads, opponent Pokémon is Burned.</option>
+          <option value="burn_auto">Opponent Pokémon is Burned.</option>
+          <option value="paralyze_heads">If heads, opponent Pokémon is Paralyzed.</option>
+          <option value="paralyze_auto">Opponent is Paralyzed.</option>
+          <option value="poison_heads">If heads, opponent Pokémon is Poisoned.</option>
+          <option value="poison_auto">Opponent is Poisoned.</option>
+          <option value="sleep_heads">If heads, opponent Pokémon is Asleep.</option>
+          <option value="sleep_auto">Opponent is Asleep.</option>
+          <option value="confuse_heads">If heads, opponent Pokémon is Confused.</option>
+          <option value="confuse_auto">Opponent Pokémon is Confused.</option>
+          <option value="burn_confuse_poison_auto">Opponent Pokémon is Burned, Confused and Poisoned.</option>
+          <option value="paralyze_poison_auto">Opponent Pokémon is Paralyzed and Poisoned.</option>
+          <option value="sleep_poison_auto">Opponent Pokémon is Asleep and Poisoned.</option>
+        </select>
+        <div class="ability-row">
+          <input type="number" id="player-atk1-bonus" placeholder="XX Value (Bonus Dmg / Heal / Self Dmg)" style="font-size: 0.85rem;">
+        </div>
+      </div>
+      
+      <!-- ATTACK 2 GROUP -->
+      <div id="atk2-container" style="display: none;" class="atk-group">
+        <div class="atk-group-title">Attack 2</div>
+        <input type="text" id="player-atk2" placeholder="Attack 2 (Damage / Effect e.g. 80*)">
+        <select id="player-atk2-ability">
+          <option value="none">No Ability</option>
+          <option value="heads_bonus">If heads, this attack does XX more damage.</option>
+          <option value="tails_chain">This attack does XX more damage for each tails in a row.</option>
+          <option value="heal_self">Heal XX damage from this pokémon.</option>
+          <option value="flip_3_heads">Flip 3 coins, this attack does default damage times heads.</option>
+          <option value="self_damage">This Pokémon also does XX damage to itself.</option>
+          <option value="cant_use_next_turn">Can't use this attack next turn.</option>
+          <option value="burn_heads">If heads, opponent Pokémon is Burned.</option>
+          <option value="burn_auto">Opponent Pokémon is Burned.</option>
+          <option value="paralyze_heads">If heads, opponent Pokémon is Paralyzed.</option>
+          <option value="paralyze_auto">Opponent is Paralyzed.</option>
+          <option value="poison_heads">If heads, opponent Pokémon is Poisoned.</option>
+          <option value="poison_auto">Opponent is Poisoned.</option>
+          <option value="sleep_heads">If heads, opponent Pokémon is Asleep.</option>
+          <option value="sleep_auto">Opponent is Asleep.</option>
+          <option value="confuse_heads">If heads, opponent Pokémon is Confused.</option>
+          <option value="confuse_auto">Opponent Pokémon is Confused.</option>
+          <option value="burn_confuse_poison_auto">Opponent Pokémon is Burned, Confused and Poisoned.</option>
+          <option value="paralyze_poison_auto">Opponent Pokémon is Paralyzed and Poisoned.</option>
+          <option value="sleep_poison_auto">Opponent Pokémon is Asleep and Poisoned.</option>
+        </select>
+        <div class="ability-row">
+          <input type="number" id="player-atk2-bonus" placeholder="XX Value (Bonus Dmg / Heal / Self Dmg)" style="font-size: 0.85rem;">
+        </div>
+      </div>
+      
+      <button type="button" id="toggle-atk2-btn" class="add-atk-btn" onclick="toggleAttack2()">+ Add Attack 2</button>
+      
       <select id="player-clan"><option value="">No Clan</option></select>
       <label style="font-size: 0.8rem; color: #aaa;">Pokémon Card Image:</label>
       <input type="file" id="player-img" accept="image/*" onchange="handleFileSelect(event, 'player-img-preview')">
@@ -251,7 +352,7 @@
   </div>
 
   <script>
-    // INDEXEDDB ENGINE - neomezená kapacita (stovky MB)
+    // INDEXEDDB ENGINE
     const DB_NAME = 'PokemonRoyaleDB';
     const DB_VERSION = 1;
     let db = null;
@@ -331,7 +432,6 @@
       renderArena();
     }
 
-    // Ponecháváme vysokou kvalitu (450px, JPEG 0.85 pro maximální detaily bez sekání)
     function compressImage(base64Str, maxWidth = 450, maxHeight = 630, quality = 0.85) {
       return new Promise((resolve) => {
         const img = new Image();
@@ -431,8 +531,82 @@
       const otherSlot = currentSlot === 'A' ? 'B' : 'A';
       const otherSelected = gameState[currentMode][otherSlot].selectedIds || [];
       tempSelectedIds = [...(gameState[currentMode][currentSlot].selectedIds || [])];
+      
+      const titleEl = document.getElementById('random-select-title');
+      const inputEl = document.getElementById('random-count-input');
+      inputEl.value = '';
+
+      if (mode === 'solo') {
+        titleEl.innerText = 'Vybrat náhodně X Pokémonů:';
+        inputEl.placeholder = 'Počet Pokémonů';
+      } else if (mode === 'duo') {
+        titleEl.innerText = 'Vybrat náhodně X týmů (dvojic z klanů):';
+        inputEl.placeholder = 'Počet týmů';
+      } else if (mode === 'squad') {
+        titleEl.innerText = 'Vybrat náhodně X týmů (4 ze stejného klanu):';
+        inputEl.placeholder = 'Počet týmů';
+      }
+
       renderSelectionList(otherSelected);
       document.getElementById('selection-modal').classList.add('open');
+    }
+
+    function performRandomSelection() {
+      const inputVal = parseInt(document.getElementById('random-count-input').value);
+      if (isNaN(inputVal) || inputVal <= 0) {
+        return alert('Zadej platné číslo větší než 0!');
+      }
+
+      const otherSlot = currentSlot === 'A' ? 'B' : 'A';
+      const otherSelected = gameState[currentMode][otherSlot].selectedIds || [];
+      const availablePlayers = players.filter(p => !otherSelected.includes(p.id));
+
+      if (currentMode === 'solo') {
+        if (inputVal > availablePlayers.length) {
+          alert(`K dispozici je pouze ${availablePlayers.length} Pokémonů!`);
+        }
+        const shuffled = [...availablePlayers].sort(() => Math.random() - 0.5);
+        const countToSelect = Math.min(inputVal, shuffled.length, 100);
+        tempSelectedIds = shuffled.slice(0, countToSelect).map(p => p.id);
+      } else {
+        const teamSize = currentMode === 'duo' ? 2 : 4;
+        
+        const clanGroups = {};
+        clans.forEach(c => clanGroups[c.id] = []);
+
+        availablePlayers.forEach(p => {
+          if (p.clanId && clanGroups[p.clanId]) {
+            clanGroups[p.clanId].push(p);
+          }
+        });
+
+        let availableTeams = [];
+        Object.keys(clanGroups).forEach(cId => {
+          let cPlayers = [...clanGroups[cId]].sort(() => Math.random() - 0.5);
+          while (cPlayers.length >= teamSize) {
+            let team = cPlayers.splice(0, teamSize);
+            availableTeams.push(team);
+          }
+        });
+
+        if (availableTeams.length === 0) {
+          return alert(`Nebyly nalezeny žádné kompletní týmy (ve stejném klanu musí být alespoň ${teamSize} Pokémoni)!`);
+        }
+
+        if (inputVal > availableTeams.length) {
+          alert(`Podařilo se sestavit pouze ${availableTeams.length} týmů ze stejných klanů. Vyberou se všechny.`);
+        }
+
+        availableTeams.sort(() => Math.random() - 0.5);
+        const selectedTeamsCount = Math.min(inputVal, availableTeams.length);
+        
+        tempSelectedIds = [];
+        for (let i = 0; i < selectedTeamsCount; i++) {
+          availableTeams[i].forEach(pk => tempSelectedIds.push(pk.id));
+        }
+      }
+
+      renderSelectionList(otherSelected);
     }
 
     function renderSelectionList(otherSelected) {
@@ -523,6 +697,21 @@
       }
     }
 
+    function createPokemonBattleState(pid) {
+      const p = players.find(x => x.id === pid) || {};
+      return { 
+        id: pid, 
+        hp: p.hp || 100, 
+        defaultHp: p.hp || 100, 
+        lastUsedAtkIndex: null,
+        isBurned: false,
+        isParalyzed: false,
+        poisonTurns: 0,
+        isAsleep: false,
+        isConfused: false
+      };
+    }
+
     async function startGameMatches() {
       const state = gameState[currentMode][currentSlot];
       
@@ -532,17 +721,14 @@
           id: 'team_solo_' + pid,
           name: `P_${idx+1}`,
           eliminated: false,
-          pokemons: [{ id: pid, hp: (players.find(p=>p.id===pid)||{}).hp||100, defaultHp: (players.find(p=>p.id===pid)||{}).hp||100 }]
+          pokemons: [createPokemonBattleState(pid)]
         }));
       } else {
         teamsToPlay = state.teams.map(t => ({
           id: t.id,
           name: t.name,
           eliminated: false,
-          pokemons: t.members.map(pid => {
-            const p = players.find(x => x.id === pid) || {};
-            return { id: pid, hp: p.hp || 100, defaultHp: p.hp || 100 };
-          })
+          pokemons: t.members.map(pid => createPokemonBattleState(pid))
         }));
       }
 
@@ -577,8 +763,14 @@
                 eliminated: false,
                 pokemons: team.pokemons.map(pk => ({
                   id: pk.id,
-                  hp: Math.min(pk.hp + 30, pk.defaultHp),
-                  defaultHp: pk.defaultHp
+                  hp: Math.min(pk.hp + 50, pk.defaultHp),
+                  defaultHp: pk.defaultHp,
+                  lastUsedAtkIndex: null,
+                  isBurned: false,
+                  isParalyzed: false,
+                  poisonTurns: 0,
+                  isAsleep: false,
+                  isConfused: false
                 }))
               });
             }
@@ -634,9 +826,252 @@
     async function updatePokemonHp(matchIdx, teamKey, pkIdx, val) {
       const match = gameState[currentMode][currentSlot].rounds[gameState[currentMode][currentSlot].currentRound][matchIdx];
       if (match && match[teamKey] && match[teamKey].pokemons[pkIdx]) {
-        match[teamKey].pokemons[pkIdx].hp = parseInt(val) || 0;
+        const hpVal = parseInt(val);
+        match[teamKey].pokemons[pkIdx].hp = isNaN(hpVal) ? 0 : Math.max(0, hpVal);
         await saveData();
+        renderArena();
       }
+    }
+
+    function parseAttackDamage(atkString) {
+      if (!atkString) return 0;
+      const match = String(atkString).match(/-?\d+/);
+      return match ? Math.abs(parseInt(match[0])) : 0;
+    }
+
+    function calculateAttackDetails(atkObj) {
+      if (!atkObj || !atkObj.str) return { totalDmg: 0, healAmount: 0, selfDmgAmount: 0, ability: 'none', applyBurn: false, applyParalyze: false, applyPoison: false, applySleep: false, applyConfuse: false };
+      
+      let baseDmg = parseAttackDamage(atkObj.str);
+      let bonusVal = parseInt(atkObj.bonus) || 0;
+      let ability = atkObj.ability || 'none';
+
+      let totalDmg = baseDmg;
+      let healAmount = 0;
+      let selfDmgAmount = 0;
+      
+      let applyBurn = false;
+      let applyParalyze = false;
+      let applyPoison = false;
+      let applySleep = false;
+      let applyConfuse = false;
+
+      if (ability === 'heads_bonus') {
+        if (Math.random() < 0.5) totalDmg += bonusVal;
+      } else if (ability === 'tails_chain') {
+        let tailsCount = 0;
+        while (Math.random() >= 0.5) { tailsCount++; }
+        totalDmg += (tailsCount * bonusVal);
+      } else if (ability === 'heal_self') {
+        healAmount = bonusVal;
+      } else if (ability === 'flip_3_heads') {
+        let headsCount = 0;
+        for (let i = 0; i < 3; i++) {
+          if (Math.random() < 0.5) headsCount++;
+        }
+        totalDmg = baseDmg * headsCount;
+      } else if (ability === 'self_damage') {
+        selfDmgAmount = bonusVal;
+      } else if (ability === 'burn_heads') {
+        if (Math.random() < 0.5) applyBurn = true;
+      } else if (ability === 'burn_auto') {
+        applyBurn = true;
+      } else if (ability === 'paralyze_heads') {
+        if (Math.random() < 0.5) applyParalyze = true;
+      } else if (ability === 'paralyze_auto') {
+        applyParalyze = true;
+      } else if (ability === 'poison_heads') {
+        if (Math.random() < 0.5) applyPoison = true;
+      } else if (ability === 'poison_auto') {
+        applyPoison = true;
+      } else if (ability === 'sleep_heads') {
+        if (Math.random() < 0.5) applySleep = true;
+      } else if (ability === 'sleep_auto') {
+        applySleep = true;
+      } else if (ability === 'confuse_heads') {
+        if (Math.random() < 0.5) applyConfuse = true;
+      } else if (ability === 'confuse_auto') {
+        applyConfuse = true;
+      } else if (ability === 'burn_confuse_poison_auto') {
+        applyBurn = true;
+        applyConfuse = true;
+        applyPoison = true;
+      } else if (ability === 'paralyze_poison_auto') {
+        applyParalyze = true;
+        applyPoison = true;
+      } else if (ability === 'sleep_poison_auto') {
+        applySleep = true;
+        applyPoison = true;
+      }
+
+      return { totalDmg, healAmount, selfDmgAmount, ability, applyBurn, applyParalyze, applyPoison, applySleep, applyConfuse };
+    }
+
+    function executeAttack(attackerPk, defenderTeam) {
+      const pData = players.find(x => x.id === attackerPk.id);
+      if (!pData) return;
+
+      if (attackerPk.isBurned) {
+        attackerPk.hp = Math.max(0, attackerPk.hp - 20);
+        if (attackerPk.hp <= 0) return;
+      }
+
+      if (attackerPk.poisonTurns > 0) {
+        attackerPk.poisonTurns++;
+        let poisonDmg = 0;
+        if (attackerPk.poisonTurns === 1) poisonDmg = 10;
+        else if (attackerPk.poisonTurns === 2) poisonDmg = 20;
+        else if (attackerPk.poisonTurns === 3) poisonDmg = 30;
+
+        attackerPk.hp = Math.max(0, attackerPk.hp - poisonDmg);
+
+        if (attackerPk.poisonTurns >= 3) {
+          attackerPk.poisonTurns = 0;
+        }
+
+        if (attackerPk.hp <= 0) return;
+      }
+
+      if (attackerPk.isParalyzed) {
+        attackerPk.isParalyzed = false;
+        return;
+      }
+
+      if (attackerPk.isAsleep) {
+        attackerPk.isAsleep = false;
+        return;
+      }
+
+      let availableAttacks = [];
+      if (pData.atk1 !== undefined && pData.atk1 !== null && pData.atk1 !== '') {
+        availableAttacks.push({ index: 0, str: pData.atk1, ability: pData.atk1Ability, bonus: pData.atk1Bonus });
+      }
+      if (pData.atk2 !== undefined && pData.atk2 !== null && pData.atk2 !== '') {
+        availableAttacks.push({ index: 1, str: pData.atk2, ability: pData.atk2Ability, bonus: pData.atk2Bonus });
+      }
+
+      if (availableAttacks.length === 0) return;
+
+      let usableAttacks = availableAttacks.filter(atk => {
+        if (atk.ability === 'cant_use_next_turn' && attackerPk.lastUsedAtkIndex === atk.index) {
+          return false;
+        }
+        return true;
+      });
+
+      if (usableAttacks.length === 0) usableAttacks = availableAttacks;
+
+      let chosenAtk = usableAttacks[Math.floor(Math.random() * usableAttacks.length)];
+      attackerPk.lastUsedAtkIndex = chosenAtk.index;
+
+      let { totalDmg, healAmount, selfDmgAmount, applyBurn, applyParalyze, applyPoison, applySleep, applyConfuse } = calculateAttackDetails(chosenAtk);
+
+      if (attackerPk.isConfused) {
+        totalDmg = Math.floor(totalDmg / 2);
+        attackerPk.isConfused = false;
+      }
+
+      if (defenderTeam) {
+        let aliveDefenders = defenderTeam.pokemons.filter(pk => pk.hp > 0);
+        if (aliveDefenders.length > 0) {
+          let targetPk = aliveDefenders[Math.floor(Math.random() * aliveDefenders.length)];
+          targetPk.hp = Math.max(0, targetPk.hp - totalDmg);
+          
+          if (applyBurn) targetPk.isBurned = true;
+          if (applyParalyze) targetPk.isParalyzed = true;
+          if (applyPoison && targetPk.poisonTurns === 0) targetPk.poisonTurns = 1;
+          if (applySleep) targetPk.isAsleep = true;
+          if (applyConfuse) targetPk.isConfused = true;
+        }
+      }
+
+      if (healAmount > 0) {
+        attackerPk.hp = Math.min(attackerPk.defaultHp, attackerPk.hp + healAmount);
+      }
+
+      if (selfDmgAmount > 0) {
+        attackerPk.hp = Math.max(0, attackerPk.hp - selfDmgAmount);
+      }
+    }
+
+    async function simAttack(matchIdx, attackerTeamKey, attackerPkIdx) {
+      const match = gameState[currentMode][currentSlot].rounds[gameState[currentMode][currentSlot].currentRound][matchIdx];
+      if (!match) return;
+
+      const attackerTeam = match[attackerTeamKey];
+      const defenderTeamKey = attackerTeamKey === 't1' ? 't2' : 't1';
+      const defenderTeam = match[defenderTeamKey];
+
+      if (!defenderTeam) {
+        alert('Žádný soupeř k útoku!');
+        return;
+      }
+
+      const attackerPk = attackerTeam.pokemons[attackerPkIdx];
+      if (attackerPk.hp <= 0) {
+        alert('KOS Pokémon nemůže útočit!');
+        return;
+      }
+
+      executeAttack(attackerPk, defenderTeam);
+
+      if (defenderTeam.pokemons.every(pk => pk.hp <= 0)) defenderTeam.eliminated = true;
+      if (attackerTeam.pokemons.every(pk => pk.hp <= 0)) attackerTeam.eliminated = true;
+
+      await saveData();
+      renderArena();
+    }
+
+    async function simRound(matchIdx) {
+      const match = gameState[currentMode][currentSlot].rounds[gameState[currentMode][currentSlot].currentRound][matchIdx];
+      if (!match || !match.t1 || !match.t2) {
+        alert('Pro simulaci zápasu jsou potřeba oba týmy!');
+        return;
+      }
+
+      const isTeamAlive = (team) => team.pokemons.some(pk => pk.hp > 0);
+
+      if (!isTeamAlive(match.t1) || !isTeamAlive(match.t2)) {
+        alert('Jeden z týmů už nemá žádné žijící Pokémony!');
+        return;
+      }
+
+      let currentTurnTeamKey = Math.random() < 0.5 ? 't1' : 't2';
+
+      let idxT1 = 0;
+      let idxT2 = 0;
+      let safetyGuard = 0;
+
+      while (isTeamAlive(match.t1) && isTeamAlive(match.t2) && safetyGuard < 1000) {
+        safetyGuard++;
+
+        const attackerTeamKey = currentTurnTeamKey;
+        const defenderTeamKey = currentTurnTeamKey === 't1' ? 't2' : 't1';
+        
+        const attackerTeam = match[attackerTeamKey];
+        const defenderTeam = match[defenderTeamKey];
+
+        let currentPkIdx = attackerTeamKey === 't1' ? idxT1 : idxT2;
+        let attackerPk = attackerTeam.pokemons[currentPkIdx];
+
+        if (attackerTeamKey === 't1') {
+          idxT1 = (idxT1 + 1) % attackerTeam.pokemons.length;
+        } else {
+          idxT2 = (idxT2 + 1) % attackerTeam.pokemons.length;
+        }
+
+        if (attackerPk && attackerPk.hp > 0) {
+          executeAttack(attackerPk, defenderTeam);
+        }
+
+        currentTurnTeamKey = defenderTeamKey;
+      }
+
+      if (!isTeamAlive(match.t1)) match.t1.eliminated = true;
+      if (!isTeamAlive(match.t2)) match.t2.eliminated = true;
+
+      await saveData();
+      renderArena();
     }
 
     async function swapTeam(matchIdx, teamKey, targetTeamId) {
@@ -671,9 +1106,29 @@
           if (m[tk] && m[tk].pokemons) {
             m[tk].pokemons.forEach(pk => {
               if (pk.id === targetPlayerId) {
-                const tempId = pk.id; const tempHp = pk.hp; const tempDef = pk.defaultHp;
-                pk.id = currentPk.id; pk.hp = currentPk.hp; pk.defaultHp = currentPk.defaultHp;
-                currentPk.id = tempId; currentPk.hp = tempHp; currentPk.defaultHp = tempDef;
+                const tempState = { ...pk };
+                Object.assign(pk, {
+                  id: currentPk.id,
+                  hp: currentPk.hp,
+                  defaultHp: currentPk.defaultHp,
+                  lastUsedAtkIndex: currentPk.lastUsedAtkIndex,
+                  isBurned: currentPk.isBurned,
+                  isParalyzed: currentPk.isParalyzed,
+                  poisonTurns: currentPk.poisonTurns,
+                  isAsleep: currentPk.isAsleep,
+                  isConfused: currentPk.isConfused
+                });
+                Object.assign(currentPk, {
+                  id: tempState.id,
+                  hp: tempState.hp,
+                  defaultHp: tempState.defaultHp,
+                  lastUsedAtkIndex: tempState.lastUsedAtkIndex,
+                  isBurned: tempState.isBurned,
+                  isParalyzed: tempState.isParalyzed,
+                  poisonTurns: tempState.poisonTurns,
+                  isAsleep: tempState.isAsleep,
+                  isConfused: tempState.isConfused
+                });
               }
             });
           }
@@ -797,6 +1252,7 @@
           <div class="match-middle">
             <div class="vs-text">VS</div>
             <div class="coin-btn ${m.coin.toLowerCase()}" onclick="flipCoin(${idx}, this)">${m.coin}</div>
+            ${m.t1 && m.t2 ? `<button class="sim-round-btn" onclick="simRound(${idx})">⚔️ Sim Round</button>` : ''}
           </div>
           ${renderTeamSuperSlotHtml(m.t2, idx, 't2', allRoundTeams, allRoundPlayers)}
         `;
@@ -826,17 +1282,30 @@
             return `<option value="${id}">${item ? item.name : 'Unknown'}</option>`;
           }).join('');
 
+        const isFainted = pk.hp <= 0;
+
+        let badgesHtml = '';
+        if (pk.isBurned) badgesHtml += `<div class="status-badge badge-burned">🔥 BURN</div>`;
+        if (pk.isParalyzed) badgesHtml += `<div class="status-badge badge-paralyzed">⚡ PARALYZED</div>`;
+        if (pk.poisonTurns > 0) badgesHtml += `<div class="status-badge badge-poisoned">☠️ POISON (${pk.poisonTurns}/3)</div>`;
+        if (pk.isAsleep) badgesHtml += `<div class="status-badge badge-asleep">zzz ASLEEP</div>`;
+        if (pk.isConfused) badgesHtml += `<div class="status-badge badge-confused">💫 CONFUSED</div>`;
+
         return `
-          <div class="slot-card">
+          <div class="slot-card ${isFainted ? 'fainted' : ''}">
             <div class="slot-header">
               <span class="slot-name">${pObj.name}</span>
               <div class="hp-edit"><input type="number" class="hp-input" value="${pk.hp}" onchange="updatePokemonHp(${matchIdx}, '${teamKey}', ${pkIdx}, this.value)"> HP</div>
             </div>
-            <div class="slot-img-container"><img src="${pObj.img || 'https://via.placeholder.com/150x210'}" class="slot-img" onclick="openProfile('${pObj.id}')"></div>
+            <div class="slot-img-container">
+              <img src="${pObj.img || 'https://via.placeholder.com/150x210'}" class="slot-img" onclick="openProfile('${pObj.id}')">
+              <div class="status-badges">${badgesHtml}</div>
+            </div>
             <select class="swap-select" onchange="swapIndividualPokemon(${matchIdx}, '${teamKey}', ${pkIdx}, this.value)">
               <option value="">Swap Pkmn...</option>
               ${pkSwapOpts}
             </select>
+            <button class="sim-btn" onclick="simAttack(${matchIdx}, '${teamKey}', ${pkIdx})">⚡ Sim Attack</button>
           </div>
         `;
       }).join('');
@@ -905,6 +1374,21 @@
       }
     }
 
+    function toggleAttack2() {
+      const container = document.getElementById('atk2-container');
+      const btn = document.getElementById('toggle-atk2-btn');
+      if (container.style.display === 'none') {
+        container.style.display = 'flex';
+        btn.innerText = '- Remove Attack 2';
+      } else {
+        container.style.display = 'none';
+        document.getElementById('player-atk2').value = '';
+        document.getElementById('player-atk2-ability').value = 'none';
+        document.getElementById('player-atk2-bonus').value = '';
+        btn.innerText = '+ Add Attack 2';
+      }
+    }
+
     function openPlayerModal(playerId = null) {
       const select = document.getElementById('player-clan');
       select.innerHTML = '<option value="">No Clan</option>';
@@ -912,6 +1396,8 @@
 
       const modal = document.getElementById('player-modal');
       const preview = document.getElementById('player-img-preview');
+      const atk2Container = document.getElementById('atk2-container');
+      const atk2Btn = document.getElementById('toggle-atk2-btn');
 
       if (playerId) {
         const p = players.find(item => item.id === playerId);
@@ -919,6 +1405,25 @@
         document.getElementById('player-edit-id').value = p.id;
         document.getElementById('player-name').value = p.name;
         document.getElementById('player-hp').value = p.hp;
+        
+        document.getElementById('player-atk1').value = p.atk1 !== undefined ? p.atk1 : '';
+        document.getElementById('player-atk1-ability').value = p.atk1Ability || 'none';
+        document.getElementById('player-atk1-bonus').value = p.atk1Bonus || '';
+
+        if (p.atk2 !== undefined && p.atk2 !== null && p.atk2 !== '') {
+          document.getElementById('player-atk2').value = p.atk2;
+          document.getElementById('player-atk2-ability').value = p.atk2Ability || 'none';
+          document.getElementById('player-atk2-bonus').value = p.atk2Bonus || '';
+          atk2Container.style.display = 'flex';
+          atk2Btn.innerText = '- Remove Attack 2';
+        } else {
+          document.getElementById('player-atk2').value = '';
+          document.getElementById('player-atk2-ability').value = 'none';
+          document.getElementById('player-atk2-bonus').value = '';
+          atk2Container.style.display = 'none';
+          atk2Btn.innerText = '+ Add Attack 2';
+        }
+
         select.value = p.clanId || '';
         if (p.img) { preview.src = p.img; preview.style.display = 'block'; } else preview.style.display = 'none';
       } else {
@@ -926,6 +1431,17 @@
         document.getElementById('player-edit-id').value = '';
         document.getElementById('player-name').value = '';
         document.getElementById('player-hp').value = '';
+        
+        document.getElementById('player-atk1').value = '';
+        document.getElementById('player-atk1-ability').value = 'none';
+        document.getElementById('player-atk1-bonus').value = '';
+
+        document.getElementById('player-atk2').value = '';
+        document.getElementById('player-atk2-ability').value = 'none';
+        document.getElementById('player-atk2-bonus').value = '';
+
+        atk2Container.style.display = 'none';
+        atk2Btn.innerText = '+ Add Attack 2';
         select.value = '';
         preview.style.display = 'none';
       }
@@ -937,18 +1453,40 @@
       const editId = document.getElementById('player-edit-id').value;
       const name = document.getElementById('player-name').value.trim();
       const hp = document.getElementById('player-hp').value;
+      
+      const atk1Val = document.getElementById('player-atk1').value.trim();
+      const atk1Ability = document.getElementById('player-atk1-ability').value;
+      const atk1Bonus = document.getElementById('player-atk1-bonus').value;
+
+      const atk2Val = document.getElementById('player-atk2').value.trim();
+      const atk2Ability = document.getElementById('player-atk2-ability').value;
+      const atk2Bonus = document.getElementById('player-atk2-bonus').value;
+
       const clanId = document.getElementById('player-clan').value;
       const preview = document.getElementById('player-img-preview');
+      
       if (!name || !hp) return alert('Fill in name and HP!');
+      if (atk1Val === '') return alert('Fill in Attack 1!');
+
+      const atk1 = atk1Val;
+      const atk2 = (document.getElementById('atk2-container').style.display !== 'none' && atk2Val !== '') ? atk2Val : null;
       let img = preview.style.display !== 'none' ? preview.src : '';
 
       gameState = { solo: createEmptySlotState(), duo: createEmptySlotState(), squad: createEmptySlotState() };
 
       if (editId) {
         const p = players.find(item => item.id === editId);
-        p.name = name; p.hp = parseInt(hp); p.clanId = clanId; p.img = img;
+        p.name = name; p.hp = parseInt(hp); 
+        p.atk1 = atk1; p.atk1Ability = atk1Ability; p.atk1Bonus = atk1Bonus;
+        p.atk2 = atk2; p.atk2Ability = atk2Ability; p.atk2Bonus = atk2Bonus;
+        p.clanId = clanId; p.img = img;
       } else {
-        players.push({ id: 'p_' + Date.now(), name, hp: parseInt(hp), clanId, img });
+        players.push({ 
+          id: 'p_' + Date.now(), name, hp: parseInt(hp), 
+          atk1, atk1Ability, atk1Bonus,
+          atk2, atk2Ability, atk2Bonus,
+          clanId, img 
+        });
       }
       
       await saveData();
@@ -1058,7 +1596,6 @@
       container.appendChild(clanEl);
     }
 
-    // Inicializace aplikace
     loadAllData();
   </script>
 </body>
